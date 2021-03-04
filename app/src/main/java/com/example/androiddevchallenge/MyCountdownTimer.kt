@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.androiddevchallenge.ui.theme
+package com.example.androiddevchallenge
 
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.Composable
 
-val blue200 = Color(0xFF9FA8DA)
-val blue500 = Color(0xFF3F51B5)
-val blue700 = Color(0xFF303F9F)
-val green200 = Color(0xFFA5D6A7)
+@Composable
+fun MyCountDownTimer() {
+    // TODO
+}
