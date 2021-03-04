@@ -44,7 +44,7 @@ fun MyApp() {
             TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) })
         },
         content = {
-            MyCountDownTimer()
+            TigcalCountDownTimer()
         }
     )
 }
