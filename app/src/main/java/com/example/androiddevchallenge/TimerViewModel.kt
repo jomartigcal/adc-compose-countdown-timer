@@ -26,7 +26,7 @@ class TimerViewModel : ViewModel() {
     private var _countdownTime: Long = 0
 
     private var _countdownHours: Long = 0
-    private var _countdownMinute: Long = 0
+    private var _countdownMinutes: Long = 0
     private var _countdownSeconds: Long = 0
 
     private val _timeRemaining = MutableLiveData(0L)
@@ -35,19 +35,22 @@ class TimerViewModel : ViewModel() {
     }
 
     fun setCountdownHours(hours: Long) {
-        updateCountdownTime(hours * 60 * 60 * 1000, _countdownMinute, _countdownSeconds)
+        _countdownHours = hours * 60 * 60 * 1000
+        updateCountdownTime()
     }
 
     fun setCountdownMinutes(minutes: Long) {
-        updateCountdownTime(_countdownHours, minutes * 60 * 1000, _countdownSeconds)
+        _countdownMinutes = minutes * 60 * 1000
+        updateCountdownTime()
     }
 
     fun setCountdownSeconds(seconds: Long) {
-        updateCountdownTime(_countdownHours, _countdownMinute, seconds * 1000)
+        _countdownSeconds = seconds * 1000
+        updateCountdownTime()
     }
 
-    private fun updateCountdownTime(hours: Long, minutes: Long, seconds: Long) {
-        _countdownTime = hours + minutes + seconds
+    private fun updateCountdownTime() {
+        _countdownTime = _countdownHours + _countdownMinutes + _countdownSeconds
     }
 
     fun startTimer() {
