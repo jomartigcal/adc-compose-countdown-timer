@@ -24,6 +24,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
 class MainActivity : AppCompatActivity() {
@@ -39,12 +40,13 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 fun MyApp() {
+    val timerViewModel: TimerViewModel = viewModel()
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) })
         },
         content = {
-            TigcalCountDownTimer()
+            TigcalCountDownTimer(timerViewModel)
         }
     )
 }

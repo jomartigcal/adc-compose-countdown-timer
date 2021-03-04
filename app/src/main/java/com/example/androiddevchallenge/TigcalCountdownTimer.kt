@@ -20,46 +20,51 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.example.androiddevchallenge.ui.theme.typography
 
 @Composable
-fun TigcalCountDownTimer() {
-    LazyColumn(
-        modifier = Modifier
+fun TigcalCountDownTimer(viewModel: TimerViewModel = viewModel()) {
+    val scrollState = rememberScrollState()
+    Column(
+        Modifier
             .fillMaxWidth()
             .padding(16.dp)
-
+            .verticalScroll(scrollState)
     ) {
-        item {
-            TimerInput()
-            Spacer(modifier = Modifier.height((16.dp)))
-            TimerOutput()
-        }
+        TimerInput(viewModel)
+        Spacer(modifier = Modifier.padding(top = 16.dp))
+        TimerOutput(viewModel)
     }
 }
 
 @Composable
-fun TimerInput() {
+fun TimerInput(viewModel: TimerViewModel) {
+
     Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp),
     ) {
         Text(
             text = stringResource(id = R.string.timer_hour),
@@ -68,7 +73,7 @@ fun TimerInput() {
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
-        TimerSlider()
+        TimerSlider(viewModel) { value -> viewModel.setCountdownHours(value) }
         Text(
             text = stringResource(id = R.string.timer_minute),
             style = typography.h6,
@@ -76,7 +81,7 @@ fun TimerInput() {
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
-        TimerSlider()
+        TimerSlider(viewModel) { value -> viewModel.setCountdownMinutes(value) }
         Text(
             text = stringResource(id = R.string.timer_second),
             style = typography.h6,
@@ -84,13 +89,15 @@ fun TimerInput() {
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
-        TimerSlider()
+        TimerSlider(viewModel) { value -> viewModel.setCountdownSeconds(value) }
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = { startTimer() },
+                onClick = { startTimer(viewModel) },
             ) {
                 Text(stringResource(id = R.string.action_start))
             }
@@ -99,26 +106,34 @@ fun TimerInput() {
 }
 
 @Composable
-fun TimerSlider() {
+fun TimerSlider(viewModel: TimerViewModel, onValueChangedFinish: (Long) -> Unit) {
     var value by remember { mutableStateOf(0f) }
-    Text(text = value.toInt().toString())
-    Slider(value = value, onValueChange = { value = it }, valueRange = 0f..59f, steps = 60)
+    Text(text = value.toLong().toString())
+    Slider(
+        value = value, valueRange = 0f..59f, steps = 60,
+        onValueChange = { value = it },
+        onValueChangeFinished = { onValueChangedFinish.invoke(value.toLong()) }
+    )
 }
 
-fun startTimer() {
-    // TODO
+fun startTimer(viewModel: TimerViewModel) {
+    viewModel.startTimer()
 }
 
 @Composable
-fun TimerOutput() {
-    // TODO
+fun TimerOutput(viewModel: TimerViewModel) {
+    val timeRemaining: String by viewModel.timeRemaining.observeAsState("")
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(timeRemaining)
+    }
 }
 
 @Preview("Light Timer", widthDp = 360, heightDp = 640)
 @Composable
 fun LightTimer() {
     MyTheme {
-        TigcalCountDownTimer()
+        TigcalCountDownTimer(viewModel())
     }
 }
 
@@ -126,6 +141,6 @@ fun LightTimer() {
 @Composable
 fun DarkTimer() {
     MyTheme(darkTheme = true) {
-        TigcalCountDownTimer()
+        TigcalCountDownTimer(viewModel())
     }
 }
