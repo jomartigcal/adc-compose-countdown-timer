@@ -30,7 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +60,9 @@ fun TigcalCountDownTimer(viewModel: TimerViewModel = viewModel()) {
 
 @Composable
 fun TimerInput(viewModel: TimerViewModel) {
+    var hour by rememberSaveable { mutableStateOf(0f) }
+    var minute by rememberSaveable { mutableStateOf(0f) }
+    var second by rememberSaveable { mutableStateOf(0f) }
 
     Column(
         modifier = Modifier
@@ -73,7 +76,9 @@ fun TimerInput(viewModel: TimerViewModel) {
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
-        TimerSlider(viewModel) { value -> viewModel.setCountdownHours(value) }
+        TimerSlider(
+            hour, onValueChange = { hour = it }
+        )
         Text(
             text = stringResource(id = R.string.timer_minute),
             style = typography.h6,
@@ -81,7 +86,10 @@ fun TimerInput(viewModel: TimerViewModel) {
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
-        TimerSlider(viewModel) { value -> viewModel.setCountdownMinutes(value) }
+        TimerSlider(
+            minute,
+            onValueChange = { minute = it }
+        )
         Text(
             text = stringResource(id = R.string.timer_second),
             style = typography.h6,
@@ -89,7 +97,10 @@ fun TimerInput(viewModel: TimerViewModel) {
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
-        TimerSlider(viewModel) { value -> viewModel.setCountdownSeconds(value) }
+        TimerSlider(
+            second,
+            onValueChange = { second = it }
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +108,9 @@ fun TimerInput(viewModel: TimerViewModel) {
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = { startTimer(viewModel) },
+                onClick = {
+                    startTimer(viewModel, hour.toLong(), minute.toLong(), second.toLong())
+                },
             ) {
                 Text(stringResource(id = R.string.action_start))
             }
@@ -106,26 +119,30 @@ fun TimerInput(viewModel: TimerViewModel) {
 }
 
 @Composable
-fun TimerSlider(viewModel: TimerViewModel, onValueChangedFinish: (Long) -> Unit) {
-    var value by remember { mutableStateOf(0f) }
+fun TimerSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit
+) {
     Text(text = value.toLong().toString())
     Slider(
-        value = value, valueRange = 0f..59f, steps = 60,
-        onValueChange = { value = it },
-        onValueChangeFinished = { onValueChangedFinish.invoke(value.toLong()) }
+        value = value, valueRange = 0f..59f, steps = 0,
+        onValueChange = { onValueChange(it) }
     )
 }
 
-fun startTimer(viewModel: TimerViewModel) {
-    viewModel.startTimer()
+fun startTimer(viewModel: TimerViewModel, hours: Long, minutes: Long, seconds: Long) {
+    viewModel.startTimer(hours, minutes, seconds)
 }
 
 @Composable
 fun TimerOutput(viewModel: TimerViewModel) {
     val timeRemaining: String by viewModel.timeRemaining.observeAsState("")
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(timeRemaining)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = timeRemaining, style = typography.h1)
     }
 }
 

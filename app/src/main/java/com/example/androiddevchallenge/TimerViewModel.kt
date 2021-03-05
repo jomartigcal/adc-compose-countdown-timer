@@ -22,39 +22,26 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 
+private const val SIXTY = 60L
+private const val ONE_THOUSAND = 1_000L
+
 class TimerViewModel : ViewModel() {
     private var _countdownTime: Long = 0
-
-    private var _countdownHours: Long = 0
-    private var _countdownMinutes: Long = 0
-    private var _countdownSeconds: Long = 0
 
     private val _timeRemaining = MutableLiveData(0L)
     val timeRemaining: LiveData<String> = Transformations.map(_timeRemaining) { time ->
         DateUtils.formatElapsedTime(time)
     }
 
-    fun setCountdownHours(hours: Long) {
-        _countdownHours = hours * 60 * 60 * 1000
-        updateCountdownTime()
-    }
+    private var timer: CountDownTimer? = null
 
-    fun setCountdownMinutes(minutes: Long) {
-        _countdownMinutes = minutes * 60 * 1000
-        updateCountdownTime()
-    }
+    fun startTimer(hours: Long, minutes: Long, seconds: Long) {
+        _countdownTime = (hours * SIXTY * SIXTY * ONE_THOUSAND) +
+            (minutes * SIXTY * ONE_THOUSAND) + (seconds * ONE_THOUSAND)
 
-    fun setCountdownSeconds(seconds: Long) {
-        _countdownSeconds = seconds * 1000
-        updateCountdownTime()
-    }
+        timer?.cancel()
 
-    private fun updateCountdownTime() {
-        _countdownTime = _countdownHours + _countdownMinutes + _countdownSeconds
-    }
-
-    fun startTimer() {
-        val timer = object : CountDownTimer(_countdownTime, 1000) {
+        timer = object : CountDownTimer(_countdownTime, 1000) {
             override fun onTick(time: Long) {
                 _timeRemaining.value = time / 1000
             }
@@ -63,6 +50,6 @@ class TimerViewModel : ViewModel() {
                 cancel()
             }
         }
-        timer.start()
+        timer?.start()
     }
 }
