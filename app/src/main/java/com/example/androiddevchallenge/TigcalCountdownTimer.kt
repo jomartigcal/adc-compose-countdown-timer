@@ -24,10 +24,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -71,7 +75,9 @@ fun TigcalCountDownTimer(viewModel: TimerViewModel = viewModel()) {
 fun TimerInput(viewModel: TimerViewModel) {
     var hour by rememberSaveable { mutableStateOf(0f) }
     var minute by rememberSaveable { mutableStateOf(0f) }
-    var second by rememberSaveable { mutableStateOf(0f) }
+    var second by rememberSaveable {
+        mutableStateOf(0f)
+    }
 
     val scrollState = rememberScrollState()
 
@@ -124,7 +130,7 @@ fun TimerInput(viewModel: TimerViewModel) {
                     startTimer(viewModel, hour.toLong(), minute.toLong(), second.toLong())
                 },
             ) {
-                Text(stringResource(id = R.string.action_start))
+                Text(stringResource(id = R.string.action_start), style = typography.h6)
             }
         }
     }
@@ -146,9 +152,11 @@ fun startTimer(viewModel: TimerViewModel, hours: Long, minutes: Long, seconds: L
     viewModel.startTimer(hours, minutes, seconds)
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun TimerOutput(viewModel: TimerViewModel) {
     val timeRemaining: String by viewModel.timeRemaining.observeAsState("")
+    val timesUp: Boolean by viewModel.isTimesUp.observeAsState(false)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -156,11 +164,41 @@ fun TimerOutput(viewModel: TimerViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
-        Text(text = timeRemaining, style = typography.h1, modifier = Modifier.padding(bottom = 16.dp))
+        Text(
+            text = timeRemaining,
+            style = typography.h1,
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colors.primary
+        )
         Button(
             onClick = { viewModel.stopTimer() },
         ) {
-            Text(stringResource(id = R.string.action_stop))
+            Text(stringResource(id = R.string.action_stop), style = typography.h6)
+        }
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .height(128.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            AnimatedVisibility(visible = timesUp, enter = slideInVertically()) {
+                Card(
+                    shape = RoundedCornerShape(4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    backgroundColor = MaterialTheme.colors.secondary
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.message_times_up),
+                        color = MaterialTheme.colors.onSecondary,
+                        style = typography.h3,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
@@ -170,7 +208,7 @@ fun TimerOutput(viewModel: TimerViewModel) {
 @Composable
 fun LightTimer() {
     MyTheme {
-        TigcalCountDownTimer(viewModel())
+        TimerOutput(viewModel())
     }
 }
 
