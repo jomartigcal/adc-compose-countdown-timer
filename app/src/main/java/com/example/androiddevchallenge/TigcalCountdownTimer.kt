@@ -15,10 +15,14 @@
  */
 package com.example.androiddevchallenge
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -43,18 +47,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.example.androiddevchallenge.ui.theme.typography
 
+@ExperimentalAnimationApi
 @Composable
 fun TigcalCountDownTimer(viewModel: TimerViewModel = viewModel()) {
-    val scrollState = rememberScrollState()
+    val inputMode by viewModel.isInputMode.observeAsState(true)
+
     Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .verticalScroll(scrollState)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
     ) {
-        TimerInput(viewModel)
-        Spacer(modifier = Modifier.padding(top = 16.dp))
-        TimerOutput(viewModel)
+        AnimatedVisibility(visible = inputMode, enter = slideInHorizontally()) {
+            TimerInput(viewModel)
+        }
+
+        AnimatedVisibility(visible = !inputMode, enter = slideInVertically()) {
+            TimerOutput(viewModel)
+        }
     }
 }
 
@@ -64,9 +73,12 @@ fun TimerInput(viewModel: TimerViewModel) {
     var minute by rememberSaveable { mutableStateOf(0f) }
     var second by rememberSaveable { mutableStateOf(0f) }
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(scrollState)
             .padding(start = 16.dp, end = 16.dp),
     ) {
         Text(
@@ -139,13 +151,21 @@ fun TimerOutput(viewModel: TimerViewModel) {
     val timeRemaining: String by viewModel.timeRemaining.observeAsState("")
 
     Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+
     ) {
-        Text(text = timeRemaining, style = typography.h1)
+        Text(text = timeRemaining, style = typography.h1, modifier = Modifier.padding(bottom = 16.dp))
+        Button(
+            onClick = { viewModel.stopTimer() },
+        ) {
+            Text(stringResource(id = R.string.action_stop))
+        }
     }
 }
 
+@ExperimentalAnimationApi
 @Preview("Light Timer", widthDp = 360, heightDp = 640)
 @Composable
 fun LightTimer() {
@@ -154,6 +174,7 @@ fun LightTimer() {
     }
 }
 
+@ExperimentalAnimationApi
 @Preview("Dark Timer", widthDp = 360, heightDp = 640)
 @Composable
 fun DarkTimer() {

@@ -15,4 +15,6 @@
     <string name="timer_second">Second</string>
 
     <string name="action_start">Start</string>
+    <string name="action_stop">Stop</string>
+
 </resources>

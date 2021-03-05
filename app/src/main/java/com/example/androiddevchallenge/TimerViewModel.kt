@@ -35,6 +35,9 @@ class TimerViewModel : ViewModel() {
 
     private var timer: CountDownTimer? = null
 
+    private var _isInputMode = MutableLiveData(true)
+    val isInputMode: LiveData<Boolean> = _isInputMode
+
     fun startTimer(hours: Long, minutes: Long, seconds: Long) {
         _countdownTime = (hours * SIXTY * SIXTY * ONE_THOUSAND) +
             (minutes * SIXTY * ONE_THOUSAND) + (seconds * ONE_THOUSAND)
@@ -51,5 +54,12 @@ class TimerViewModel : ViewModel() {
             }
         }
         timer?.start()
+        _isInputMode.value = false
+    }
+
+    fun stopTimer() {
+        timer?.cancel()
+        _timeRemaining.value = 0
+        _isInputMode.value = true
     }
 }
