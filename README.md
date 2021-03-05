@@ -6,7 +6,7 @@
 
 
 ## :scroll: Description
-A simple countdown timer built with Jetpac Compose
+A simple countdown timer built with Jetpack Compose
 
 
 ## :bulb: Motivation and Context
