@@ -9,7 +9,8 @@
       or implied. See the License for the specific language governing permissions and limitations under
       the License.
       -->
-    <string name="app_name">Countdown Timer</string>
+    <string name="app_name">Tigcal Timer</string>
+
     <string name="timer_hour">Hour</string>
     <string name="timer_minute">Minute</string>
     <string name="timer_second">Second</string>
